@@ -15,7 +15,7 @@ style="background-color:lemonchiffon;border:3px black;">
 <td style="background-color:bisque" width="20%" colspan="3">
 
 <input type="radio" name="who" value="me"> View My Logs 
-<input type="text" name="email_address" value="<TMPL_VAR NAME=USERNAME>"/> 
+<input type="text" name="username" value="<TMPL_VAR NAME=USERNAME>"/> 
 <p>
 <input type="radio" name="who" value="all"> View All Logs 
 <p>
@@ -27,9 +27,29 @@ My Path is set to <a href="/<TMPL_VAR NAME=MYFILES>"><TMPL_VAR NAME=MYFILES></a>
 <tr>
 <td style="background-color:bisque" width="20%" colspan="3">
 MSG: <TMPL_VAR NAME=SPECIALMSG>
-</td>
-</tr>
+<p>
+
+<TMPL_LOOP NAME=LOGS>
+<table border=1 bgcolor="black">
+   <tr><td bgcolor="white">
+   Log Name : <A href="/<TMPL_VAR NAME=LOGLINK>"><TMPL_VAR NAME=LOGNAME></A>
+   </td></tr>
+   <tr><td bgcolor="white">
+   Summary : <br>
+   <table border=1 bgcolor="lightyellow">
+   <tr bgcolor="lightgreen"><th>Field</th><th>Value</th></tr>
+   <TMPL_LOOP NAME=SUMDATA>
+   <tr>
+     <td><TMPL_VAR NAME=SUMFIELD> </td>
+	 <td><TMPL_VAR NAME=DATAFIELD> </td>
+   </tr>
+   </TMPL_LOOP>
+   </table>
+   </td></tr>
 </table>
+<p>
+</TMPL_LOOP>
+
 </form>
 </body>
 </html>
