@@ -25,30 +25,36 @@ $template->param(MYFILES => "upload/$username/");
 #see what we're supposed to do
 my $action = $query->param("func");
 
+#check if summary exists, if so display, otherwise propose link to generate
 #if user requests to view his file list, generate table
 if ( $action eq 'view') {
- my $logs = `ls $upload_dir/$username/*.sum`;
- my @sums = split(/\n/,$logs);
-
+ my $logs = `ls $upload_dir/$username/*.log`;
+ my @logs = split(/\n/,$logs);
  my $lognum = 0;
  my @loopdata = ();
- foreach(@sums) {
-  my %rowdata;
-#  my %sumdata = map((),);
+ my $lat;
+ my $lon;
   
+ foreach(@logs) {
+  my %rowdata;
   my $absname = $_;
+  
   my ( $relname, $path, $extension ) = fileparse ( $absname, '\..*' ); 
    
   $rowdata{LOGNAME} = "$relname.log" ;
   $rowdata{LOGLINK} = "upload/$username/$relname.log";
-  
-  my $summary = `cat $absname`;
+  my $abssumname = $absname;
+  $abssumname =~ s/\.log/\.sum/;
+  my $summary = `cat $abssumname`;
+  if ($summary) {
   my @sumlines = split(/\n/,$summary);
   my @inloopdata = ();
   foreach (@sumlines) {
     my %sumdata;
     my ($fieldname,$fieldval) = split(/\:/,$_);
 	if ($fieldname eq 'warning') { next; }
+	if ($fieldname eq 'TO lat') {$lat=$fieldval;}
+	if ($fieldname eq 'TO lon') {$lon=$fieldval;}
 	$sumdata{SUMFIELD} = $fieldname ;
 	$sumdata{DATAFIELD} = $fieldval ;
 	push(@inloopdata, \%sumdata);
@@ -56,8 +62,18 @@ if ( $action eq 'view') {
   $rowdata{SUMDATA} = \@inloopdata;
   push(@loopdata, \%rowdata);
   $lognum++;
+ } else {
+#	$rowdata{SUMDATA} = "none";
+	$rowdata{GENSUM} = "log2nmea.pl?user=$username&logfile=$relname";
+	push(@loopdata, \%rowdata);
+	$lognum++;
  }
-
+#$rowdata{MAP} = "http://maps.google.com/maps/api/staticmap?center=1307 mcleland ave, port st joe, fl&zoom=14&size=256x256&maptype=roadmap
+#&sensor=false";
+$rowdata{MAP} = "http://maps.google.com/maps/api/staticmap?center=$lat,$lon&zoom=9&size=256x256&maptype=roadmap
+&markers=color:blue|label:HOME|$lat,$lon&sensor=false";
+$rowdata{FL}="Type some text here $lat $lon";
+} 
  $template->param(SPECIALMSG => "You ($username) want to view!\n");
 # $template->param(LOGS => [ {logname => $logs, logsum => 'summary1'},
 #							{logname => 'second', logsum => 'summary2'},

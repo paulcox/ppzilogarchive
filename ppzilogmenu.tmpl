@@ -31,10 +31,13 @@ MSG: <TMPL_VAR NAME=SPECIALMSG>
 
 <TMPL_LOOP NAME=LOGS>
 <table border=1 bgcolor="black">
-   <tr><td bgcolor="white">
-   Log Name : <A href="/<TMPL_VAR NAME=LOGLINK>"><TMPL_VAR NAME=LOGNAME></A>
-   </td></tr>
-   <tr><td bgcolor="white">
+   <tr><td bgcolor="white" >
+   Log Name : <A href="/<TMPL_VAR NAME=LOGLINK>"><TMPL_VAR NAME=LOGNAME></A><br>
+   NMEA: TODO <br>
+   KML:  TODO <br>
+   </td><td bgcolor="white"><input type="checkbox" name="delete">Delete</td></tr>
+   <tr><td bgcolor="white"  width="400">
+<TMPL_IF NAME=SUMDATA>
    Summary : <br>
    <table border=1 bgcolor="lightyellow">
    <tr bgcolor="lightgreen"><th>Field</th><th>Value</th></tr>
@@ -45,6 +48,18 @@ MSG: <TMPL_VAR NAME=SPECIALMSG>
    </tr>
    </TMPL_LOOP>
    </table>
+<TMPL_ELSE>
+No summary yet<br>
+<A href="/cgi-bin/<TMPL_VAR NAME=GENSUM>">generate it!</A>   
+</TMPL_IF>
+   </td>
+   <td><img src="<TMPL_VAR NAME=MAP>"></td>
+   </tr>
+   <tr><td bgcolor="lightgrey" colspan="2">
+   Flight Log : <br>
+   <form method="post" action="">
+	<textarea name="comments" cols="70" rows="3"><TMPL_VAR NAME=FL>
+	</textarea>
    </td></tr>
 </table>
 <p>

@@ -19,9 +19,13 @@
 #time    ID MSG M EAST     NORTH     C    ALT  S C   W    ITOW      ZO ERR
 #144.225 20 GPS 3 19779772 497668512 1819 3625 9 -20 1601 303393500 31 0
 
-#use strict; fast and loose is nice...
+#use strict; fast and loose is nice...  
+use CGI;  
+use CGI::Carp qw ( fatalsToBrowser );  
 use Geo::Coordinates::UTM;
 require "distance.pl";
+
+my $query = new CGI;  
 
 my $utw=0;
 my $cnt=0;
@@ -58,10 +62,10 @@ sub getnmeatime {
 } 
 
 my $upload_dir = "/var/www/upload";
-my $filename = '10_09_15__14_13_55';
-my $username = 'paul@laas.fr';
-#my $filename = $query->param("logfile");
-#my $username = $query->param("user");
+#my $filename = '10_09_15__14_13_55';
+#my $username = 'paul@laas.fr';
+my $filename = $query->param("logfile");
+my $username = $query->param("user");
 
 open(STDOUT,">$upload_dir/$username/$filename.sum");
 
@@ -126,6 +130,8 @@ while (my $line = <DATAFILE>) {
       $olat=$latitude; $olon=$longitude;
       #create waypoint
       printf STDOUT "Takeoff detected at time : $totime s\n";
+	  printf STDOUT "TO lat: $olat\n";
+	  printf STDOUT "TO lon: $olon\n";
     }
     
     if ($fields[7] > $hialt and $totime != 0 ) {
@@ -195,7 +201,10 @@ while (my $line = <DATAFILE>) {
   }
   
 }
-
+if ($cnt == 0) {
+printf STDOUT "nothing counted";
+die;
+}
 printf STDOUT "Number of GPS points: $cnt Avg. delta: ";
 printf STDOUT '%.2f',$sum/$cnt;
 printf STDOUT " Duration: ";
