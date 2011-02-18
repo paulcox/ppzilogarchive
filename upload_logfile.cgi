@@ -14,28 +14,31 @@ my $logfile = $query->param("logfile");
 my $datafile = $query->param("datafile");   
 my $email_address = $query->param("email_address");  
 
-
 print $query->header ( );  
-print <<END_HTML;  
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">  
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">  
+print <<END_HTML;   
+<html>  
  <head>  
-   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
    <title>Log Files Uploaded</title>  
-   <style type="text/css">  
-     img {border: none;}  
-   </style>  
  </head>  
  <body>  
+<img src="../archive_banner.png"> 
 END_HTML
 
 #############check file names##############
 
 if ( !$logfile )  
 {  
- print $query->header ( );  
- print "<p>There was a problem uploading your .log file (try a smaller file).</p>";  
- exit;  
+ if ($query->param("func") eq 'delete') {
+ my $filetodel = $query->param("filetodel");
+ `rm $filetodel.log`;
+ `rm $filetodel.data`;
+  printf "<br>$filetodel.* files deleted<br><A href=/cgi-bin/ppzilogmenu.pl?username=$email_address&func=view>.. Back to upload logs</A>";
+  exit;
+ } else {
+  print $query->header ( );  
+  print "<p>There was a problem uploading your .log file (try a smaller file).</p>";  
+  exit; 
+ } 
 }  
 
 my ( $name, $path, $extension ) = fileparse ( $logfile, '\..*' );  
@@ -114,12 +117,24 @@ close UPLOADFILE;
 `chmod a+r $upload_dir/$userdir/$logfile`;
 
 print <<END_HTML;  
-   <p>Thanks for uploading your file!</p>  
+   <p>Thanks for uploading your logs!</p>  
    <p>Your email address: $email_address</p>  
    <p>Your files:</p>  
    <p>Log file : <A href="/upload/$userdir/$logfile">$logfile</A></p>  
    <p>Data file : <A href="/upload/$userdir/$datafile">$datafile</A></p>
-   <p><A href="summary.html">Back to Summary</A></p>    
+
+<form action="/cgi-bin/upload_logfile.cgi" method="GET">
+   <input type="hidden" name="email_address" value="$email_address">
+   <input type="hidden" name="filetodel" value="$upload_dir/$userdir/$name">
+   <p>If you wish to undo the upload click <input type="submit" name="func" value="delete"/></p>
+</form>
+
+<form action="/cgi-bin/log2nmea.pl" method="GET">
+   <input type="hidden" name="user" value="$email_address">
+   <input type="hidden" name="logfile" value="$name">
+   <p>To generate a log summary click <input type="submit" name="func" value="summary"/></p>
+</form>   
+   <p><A href="ppzilogmenu.pl?username=$email_address&func=view">...Back to View Page</A></p> 
  </body>  
 </html>  
 END_HTML

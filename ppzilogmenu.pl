@@ -43,36 +43,42 @@ if ( $action eq 'view') {
    
   $rowdata{LOGNAME} = "$relname.log" ;
   $rowdata{LOGLINK} = "upload/$username/$relname.log";
+  if (-r "$upload_dir/$username/$relname.nmea") {
+	$rowdata{NMEA} = "upload/$username/$relname.nmea";
+  } 
+    if (-r "$upload_dir/$username/$relname.kml") {
+	$rowdata{KML} = "upload/$username/$relname.kml";
+  } 
   my $abssumname = $absname;
   $abssumname =~ s/\.log/\.sum/;
   my $summary = `cat $abssumname`;
   if ($summary) {
-  my @sumlines = split(/\n/,$summary);
-  my @inloopdata = ();
-  foreach (@sumlines) {
-    my %sumdata;
-    my ($fieldname,$fieldval) = split(/\:/,$_);
-	if ($fieldname eq 'warning') { next; }
-	if ($fieldname eq 'TO lat') {$lat=$fieldval;}
-	if ($fieldname eq 'TO lon') {$lon=$fieldval;}
-	$sumdata{SUMFIELD} = $fieldname ;
-	$sumdata{DATAFIELD} = $fieldval ;
-	push(@inloopdata, \%sumdata);
-  }
-  $rowdata{SUMDATA} = \@inloopdata;
-  push(@loopdata, \%rowdata);
-  $lognum++;
- } else {
+   my @sumlines = split(/\n/,$summary);
+   my @inloopdata = ();
+   foreach (@sumlines) {
+     my %sumdata;
+     my ($fieldname,$fieldval) = split(/\:/,$_);
+	 if ($fieldname eq 'warning') { next; }
+	 if ($fieldname eq 'TO lat') {$lat=$fieldval;}
+	 if ($fieldname eq 'TO lon') {$lon=$fieldval;}
+	 $sumdata{SUMFIELD} = $fieldname ;
+	 $sumdata{DATAFIELD} = $fieldval ;
+	 push(@inloopdata, \%sumdata);
+   }
+   $rowdata{SUMDATA} = \@inloopdata;
+   push(@loopdata, \%rowdata);
+   $lognum++;
+   $rowdata{MAP} = "http://maps.google.com/maps/api/staticmap?center=$lat,$lon&zoom=9&size=256x256&maptype=roadmap
+&markers=color:blue|label:HOME|$lat,$lon&sensor=false";
+   } else {
 #	$rowdata{SUMDATA} = "none";
 	$rowdata{GENSUM} = "log2nmea.pl?user=$username&logfile=$relname";
 	push(@loopdata, \%rowdata);
 	$lognum++;
- }
+  }
 #$rowdata{MAP} = "http://maps.google.com/maps/api/staticmap?center=1307 mcleland ave, port st joe, fl&zoom=14&size=256x256&maptype=roadmap
 #&sensor=false";
-$rowdata{MAP} = "http://maps.google.com/maps/api/staticmap?center=$lat,$lon&zoom=9&size=256x256&maptype=roadmap
-&markers=color:blue|label:HOME|$lat,$lon&sensor=false";
-$rowdata{FL}="Type some text here $lat $lon";
+$rowdata{FL}="Type some text here";
 } 
  $template->param(SPECIALMSG => "You ($username) want to view!\n");
 # $template->param(LOGS => [ {logname => $logs, logsum => 'summary1'},

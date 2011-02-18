@@ -1,22 +1,22 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd"> 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<html> 
  <head> 
-   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
    <title>File Upload</title> 
  </head> 
  <body> 
+ <img src="../archive_banner.png">
    <form action="/cgi-bin/upload_logfile.cgi" method="post"   
 enctype="multipart/form-data"> 
 
 <table border="1" cellpadding="5" cellspacing="5" width="80%"
 style="background-color:lemonchiffon;border:3px black;">
 <tr>
-<th style="background-color:bisque;text-align:left"><A href="/cgi-bin/ppzilogmenu.pl">View Logs</A></th>
-<th style="text-align:left">Upload logs</th>
-<th style="text-align:left">Site Stats</th>
+<th style="text-align:left"><A href="/cgi-bin/ppzilogmenu.pl">View Logs</A></th>
+<th style="background-color:bisque;text-align:left">Upload logs</th>
+<th style="text-align:left"><A href=/cgi-bin/settings.cgi>Settings</A></th>
+<th style="text-align:left"><A href=/cgi-bin/stats.cgi>Site Stats</A></th>
 </tr>
 <tr>
-<td style="background-color:bisque" width="20%" colspan="3">
+<td style="background-color:bisque" width="20%" colspan="4">
 
      <p>Data File to Upload: <input type="file" name="datafile" /></p> 
 	 <p>Log File to Upload: <input type="file" name="logfile" /></p> 

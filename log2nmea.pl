@@ -67,17 +67,18 @@ my $upload_dir = "/var/www/upload";
 my $filename = $query->param("logfile");
 my $username = $query->param("user");
 
-open(STDOUT,">$upload_dir/$username/$filename.sum");
+open(SUMOUT,">$upload_dir/$username/$filename.sum");
 
 my @filepts = split(/\_/,$filename);
 my $date = $filepts[2] . $filepts[1] . $filepts[0];
 
-printf STDOUT "NMEA Date: $date\n";
+printf SUMOUT "NMEA Date: $date\n";
 
 #printf "$upload_dir/$username/$filename.data";
 #my $foo = `ls -l $upload_dir/$username/$filename.data`;
 #printf $foo;
 
+printf "<$upload_dir/$username/$filename.data";
 open DATAFILE, "<$upload_dir/$username/$filename.data" or die $!;
 #TODO: open .log file and create nmea waypoints from flightplan waypoints
 #open OUTFILE, ">GPS_data_$date.txt" or die $!;
@@ -96,7 +97,7 @@ while (my $line = <DATAFILE>) {
   if ($fields[2] eq "GPS_SOL" and $fields[5] < 1000 and $fields[6] > 3) {
     if ($solstart == 0 ) {
       $solstart = $fields[0];
-      printf STDOUT "GPS SOL start time: $solstart\n";
+      printf SUMOUT "GPS SOL start time: $solstart\n";
     }
     $pacc = $fields[3];
     $sacc = $fields[4];
@@ -111,14 +112,14 @@ while (my $line = <DATAFILE>) {
         #store begin flight time
     if ($toffset == 0) { 
       $toffset = $fields[0];
-      printf STDOUT "GPS Start Time: $toffset\n";
+      printf SUMOUT "GPS Start Time: $toffset\n";
     }
     #Calculate delta and store for averaging at the end
     if ($prevtime == 0) {
       $prevtime = $fields[0];
     } else {
       $delta= $fields[0]-$prevtime;
-      if ($delta > 2) {printf STDOUT "warning: delta %.1f at $fields[0] s.\n",$delta;}
+      if ($delta > 2) {printf SUMOUT "warning: delta %.1f at $fields[0] s.\n",$delta;}
       $prevtime = $fields[0];
       $sum += $delta;
       $cnt++;
@@ -129,9 +130,9 @@ while (my $line = <DATAFILE>) {
       $gndalt = $fields[7];
       $olat=$latitude; $olon=$longitude;
       #create waypoint
-      printf STDOUT "Takeoff detected at time : $totime s\n";
-	  printf STDOUT "TO lat: $olat\n";
-	  printf STDOUT "TO lon: $olon\n";
+      printf SUMOUT "Takeoff detected at time : $totime s\n";
+	  printf SUMOUT "TO lat: $olat\n";
+	  printf SUMOUT "TO lon: $olon\n";
     }
     
     if ($fields[7] > $hialt and $totime != 0 ) {
@@ -143,15 +144,15 @@ while (my $line = <DATAFILE>) {
     #touchdown is considered when < 1 m/s on hor and vert
     if ($fields[8] < 100 and $fields[9] < 100 and $totime != 0 and $tdtime == 0) {
       $tdtime = $fields[0];
-      printf STDOUT "Max Alt : %.2f meters ($hialtt sec)\n",($hialt-$gndalt)/100;
-      printf STDOUT "Max Dist: %.3f km ($maxdistt sec)\n",$maxdist;
-      printf STDOUT "Touchdown detected at time : $tdtime s (flight time: %.2f min)\n",($tdtime-$totime)/60;
+      printf SUMOUT "Max Alt : %.2f meters ($hialtt sec)\n",($hialt-$gndalt)/100;
+      printf SUMOUT "Max Dist: %.3f km ($maxdistt sec)\n",$maxdist;
+      printf SUMOUT "Touchdown detected at time : $tdtime s \n flight time: %.2f min\n",($tdtime-$totime)/60;
     }
    
     $utw=$fields[11];
     #divide by 100 as gps provides utm in centimeters
     ($latitude,$longitude)=utm_to_latlon('wgs84',($fields[12] . "V"),$fields[4]/100,$fields[5]/100);
-    #printf STDOUT OUTFILE "Time: %.2f Alt: %.2f Lat: %.6f Lon: %.6f\n",
+    #printf SUMOUT OUTFILE "Time: %.2f Alt: %.2f Lat: %.6f Lon: %.6f\n",
     #                 $fields[0] - $toffset,($fields[7]/100),$latitude,$longitude;
     
     if ($totime == 0) { next;}
@@ -202,14 +203,14 @@ while (my $line = <DATAFILE>) {
   
 }
 if ($cnt == 0) {
-printf STDOUT "nothing counted";
+printf "nothing counted";
 die;
 }
-printf STDOUT "Number of GPS points: $cnt Avg. delta: ";
-printf STDOUT '%.2f',$sum/$cnt;
-printf STDOUT " Duration: ";
-printf STDOUT '%.2f',$cnt/4/60;
-printf STDOUT " minutes\n";
+printf SUMOUT "Number of GPS points: $cnt Avg. delta ";
+printf SUMOUT '%.2f',$sum/$cnt;
+printf SUMOUT "\nDuration: ";
+printf SUMOUT '%.2f',$cnt/4/60;
+printf SUMOUT " minutes\n";
 
 close DATAFILE;
 #close OUTFILE;
@@ -217,7 +218,8 @@ close NMEAFILE;
 
 open NMEAFILE, "<$upload_dir/$username/NMEA_$date.log" or die $!;
 $time = substr($time,0,6);
-open OUTFILE, ">$upload_dir/$username/gps_$date\_$time.nmea" or die $!;
+#open OUTFILE, ">$upload_dir/$username/gps_$date\_$time.nmea" or die $!;
+open OUTFILE, ">$upload_dir/$username/$filename.nmea" or die $!;
 
 while (my $line = <NMEAFILE>) { 
   chomp($line);
@@ -236,3 +238,38 @@ while (my $line = <NMEAFILE>) {
 close NMEAFILE;
 `rm $upload_dir/$username/NMEA_$date.log`;
 close OUTFILE;
+
+close SUMOUT;
+
+print $query->header ( );  
+
+$summary_contents = `cat $upload_dir/$username/$filename.sum`;
+
+print <<END_HTML;   
+<html>  
+ <head>  
+   <title>Log Files Uploaded</title>  
+ </head>  
+ <body>  
+<img src="../archive_banner.png">  
+   <br><br>
+   Log File : <A href="$upload_dir/$username/$filename.log">$filename.log</A>
+   <br>
+   Data File : <A href="$upload_dir/$username/$filename.data">$filename.data</A>
+   <br>
+   NMEA Outpout : <A href="$upload_dir/$username/$filename.nmea">$filename.nmea</A>
+   <br>
+   <textarea name="comments" cols="50" rows="15">$summary_contents</textarea>
+   <img src="http://maps.google.com/maps/api/staticmap?center=$lat,$lon&zoom=9&size=256x256&maptype=roadmap
+&markers=color:blue|label:HOME|$olat,$olon&sensor=false">
+   <br>
+   Enter something into your log book regarding this flight :
+   <form method="post" action="comments" name="update">
+	<textarea name="comments" cols="70" rows="3">type something here</textarea>
+	<br>
+	<input type="submit" name="func" value="comment" />
+   </form>
+   <p><A href="ppzilogmenu.pl?username=$username&func=view">...Back to View Page</A></p>
+ </body>  
+</html>  
+END_HTML
