@@ -12,7 +12,7 @@ my $upload_dir = "/var/www/upload";
 my $query = new CGI;  
 my $username = $query->param("username");   
 if (!$username ) {
- $username = 'theman@gmail.com';
+ $username = 'paul@laas.fr';
 }
 
   # open the html template
