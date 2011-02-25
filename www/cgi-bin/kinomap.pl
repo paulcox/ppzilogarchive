@@ -1,8 +1,10 @@
 #!/usr/bin/perl
-#Kinomap uploader
+# Kinomap uploader #################
 #
 #Author : Paul Cox 2011
 #License : none, use at will
+#
+# NOTES ############################
 # app_key: Application key
 # login: User login
 # md5_pwd: User password md5 hash
@@ -40,7 +42,9 @@ my $ffmpeg_p1 = "/usr/bin/ffmpeg -s 320x240 -y -i $video_infile -pass 1 -threads
 my $ffmpeg_p2 = "/usr/bin/ffmpeg -s 320x240 -y -i $video_infile -pass 2 -threads 0 -r 29.97 -vcodec libx264 -b 512k -flags +loop -cmp +chroma -deblockalpha 0 -deblockbeta 0 -bt 256k -refs 1 -coder 0 -me_range 16 -subq 5 -partitions +parti4x4+parti8x8+partp8x8 -g 25 -keyint_min 25 -level 30 -qmin 10 -qmax 40 -trellis 2 -sc_threshold 40 -i_qfactor 0.71 -acodec libfaac -ar 44100 -ab 96k -ac 2 $video_outfile";
 
 my $app_key = 'L1CEXi2GqqPlxIVD08BQ';
-my $app_secret = 'SFooqYZvq1oYf2787TpG';
+my $app_secret = `cat app_secret.txt`;
+chomp $app_secret;
+#print $app_secret."\n";
 my $login = 'paulcox';
 my $md5pass = md5_hex("xxxxx");
 my $timestamp = time();
