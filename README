@@ -1,0 +1,10 @@
+webpages and scripts to run ppzilogarchive web service
+
+Run on webserver, uses file based storage currently
+
+requires:
+
+perl cgi
+perl cgi templates
+libdigest-hmac-perl (for kinomap.pl)
+others?
