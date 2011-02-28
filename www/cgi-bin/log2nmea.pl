@@ -67,6 +67,11 @@ my $upload_dir = "/var/www/upload";
 my $filename = $query->param("logfile");
 my $username = $query->param("user");
 
+
+print $query->header();  
+
+print "Parsing log and creating summary...Please wait...\n";
+
 open(SUMOUT,">$upload_dir/$username/$filename.sum");
 
 my @filepts = split(/\_/,$filename);
@@ -241,7 +246,6 @@ close OUTFILE;
 
 close SUMOUT;
 
-print $query->header ( );  
 
 $summary_contents = `cat $upload_dir/$username/$filename.sum`;
 

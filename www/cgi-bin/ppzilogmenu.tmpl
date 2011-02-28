@@ -6,55 +6,70 @@
 <table border="1" cellpadding="5" cellspacing="5" width="80%"
 style="background-color:lemonchiffon;border:3px black;">
 <tr>
-<th style="background-color:bisque;text-align:left">View Logs</th>
-<th style="text-align:left"><A href=/upload_logfile.html>Upload logs</A></th>
-<th style="text-align:left"><A href=/cgi-bin/settings.cgi>Settings</A></th>
-<th style="text-align:left"><A href=/cgi-bin/stats.cgi>Site Stats</A></th>
+	<th style="background-color:bisque;text-align:left">View Logs</th>
+	<th style="text-align:left"><A href=/upload_logfile.html>Upload logs</A></th>
+	<th style="text-align:left"><A href=/cgi-bin/settings.cgi>Settings</A></th>
+	<th style="text-align:left"><A href=/cgi-bin/stats.cgi>Site Stats</A></th>
 </tr>
 <tr>
-<td style="background-color:bisque" width="20%" colspan="4">
-
-<input type="radio" name="who" value="me"> View My Logs 
-<input type="text" name="username" value="<TMPL_VAR NAME=USERNAME>"/> 
-<p>
-<input type="radio" name="who" value="all"> View All Logs 
-<p>
-<input type="submit" name="func" value="view" />
-<p>
-My Path is set to <a href="/<TMPL_VAR NAME=MYFILES>"><TMPL_VAR NAME=MYFILES></a>
-</td>
+	<td style="background-color:bisque" width="20%" colspan="4">
+		<input type="radio" name="who" value="me"> View My Logs 
+		<input type="text" name="username" value="<TMPL_VAR NAME=USERNAME>"/> 
+		<p>
+		<input type="radio" name="who" value="all"> View All Logs 
+		<p>
+		<input type="submit" name="func" value="view" />
+		<p>
+		My Path is set to <a href="/<TMPL_VAR NAME=MYFILES>"><TMPL_VAR NAME=MYFILES></a>
+	</td>
 </tr>
 <tr>
-<td style="background-color:bisque" width="20%" colspan="4">
-MSG: <TMPL_VAR NAME=SPECIALMSG>
-<p>
+	<td style="background-color:bisque" width="20%" colspan="4">
+		MSG: <TMPL_VAR NAME=SPECIALMSG>
+		<p>
 
 <TMPL_LOOP NAME=LOGS>
 <table border=1 bgcolor="black">
-   <tr><td bgcolor="white" >
-   Log Name : <A href="/<TMPL_VAR NAME=LOGLINK>"><TMPL_VAR NAME=LOGNAME></A> <br>  
-   <TMPL_IF NAME=NMEA><A href="/<TMPL_VAR NAME=NMEA>">NMEA</A><br></TMPL_IF>  
-   <TMPL_IF NAME=KML><A href="/<TMPL_VAR NAME=KML>">KML</A><br></TMPL_IF>
-   </td><td bgcolor="white"><input type="checkbox" name="delete">Delete</td></tr>
-
-   <tr><td bgcolor="white" align="center" width="400">
+   <tr><td  colspan=2>
+   <table border=1 bgcolor="lightyellow" width="100%">
+   <tr>
+   <td bgcolor="lightblue">Log <TMPL_VAR NAME=LOGNUM> 
+   </td><td>
+	   Name : <A href="/<TMPL_VAR NAME=LOGLINK>"><TMPL_VAR NAME=LOGNAME></A>
+		<A href="/<TMPL_VAR NAME=DATALINK>">.data</A>
+   </td><td>  
+		<TMPL_IF NAME=NMEA><A href="/<TMPL_VAR NAME=NMEA>">NMEA</A></TMPL_IF>  
+		<TMPL_IF NAME=KML><A href="/<TMPL_VAR NAME=KML>">KML</A></TMPL_IF>
+	   <A href="<TMPL_VAR NAME=MSGLINK>">Message List</A>
+   </td>
+   <td bgcolor="white">
+	<input type="checkbox" name="delete" value="<TMPL_VAR NAME=LOGNAME>">Delete
+   </td>
+   </tr>
+   </table>
+   </td>
+   <tr>
+   <td bgcolor="white" align="center" width="400">
 <TMPL_IF NAME=SUMDATA>
    Log Summary : <A href="/summary_info.html">Field Info</A> <br>
    <table border=1 bgcolor="lightyellow">
    <tr bgcolor="lightgreen"><th>Field</th><th>Value</th></tr>
    <TMPL_LOOP NAME=SUMDATA>
-   <tr>
-     <td><TMPL_VAR NAME=SUMFIELD> </td>
-	 <td><TMPL_VAR NAME=DATAFIELD> </td>
-   </tr>
+	<tr>
+	<td><TMPL_VAR NAME=SUMFIELD> </td>
+	<td><TMPL_VAR NAME=DATAFIELD> </td>
+	</tr>
    </TMPL_LOOP>
    </table>
 <TMPL_ELSE>
-No summary yet<br>
-<A href="/cgi-bin/<TMPL_VAR NAME=GENSUM>">generate it!</A>   
+	No summary yet<br>
+	<A href="/cgi-bin/<TMPL_VAR NAME=GENSUM>">generate it!</A>   
 </TMPL_IF>
    </td>
-   <td><TMPL_IF NAME=MAP><img src="<TMPL_VAR NAME=MAP>"></TMPL_IF></td>
+   <td bgcolor="white">
+   Aircraft: unknown <A HREF="nolinkyet"><img height=40 width=40 src="<TMPL_VAR NAME=ACIMG>"></A><br><br>
+   <TMPL_IF NAME=MAP><img src="<TMPL_VAR NAME=MAP>"></TMPL_IF>
+   </td>
    </tr>
 
    <tr><td bgcolor="lightgrey" colspan="2">

@@ -34,15 +34,20 @@ if ( $action eq 'view') {
  my @loopdata = ();
  my $lat;
  my $lon;
-  
- foreach(@logs) {
+
+ #for each log found, in reverse order (newest first), show links, summary, map, and log entry  
+ foreach(sort {$b cmp $a} @logs) {
   my %rowdata;
   my $absname = $_;
   
   my ( $relname, $path, $extension ) = fileparse ( $absname, '\..*' ); 
-   
+  
+  $rowdata{LOGNUM} = $lognum+1; 
   $rowdata{LOGNAME} = "$relname.log" ;
   $rowdata{LOGLINK} = "upload/$username/$relname.log";
+  $rowdata{DATALINK} = "upload/$username/$relname.data";
+  $rowdata{MSGLINK} = "loglist.pl?username=$username&filename=$relname";
+  $rowdata{ACIMG} = "/upload/$username/aircraft.png";
   if (-r "$upload_dir/$username/$relname.nmea") {
 	$rowdata{NMEA} = "upload/$username/$relname.nmea";
   } 

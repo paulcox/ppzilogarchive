@@ -17,11 +17,23 @@ my $template = HTML::Template->new(filename => 'loglist.tmpl');
 my $upload_dir = "/var/www/upload";
 #my $filename = $query->param("logfile");
 
-my $filename = '10_09_15__14_13_55';
+#my $filename = '10_09_15__14_13_55';
+my $filename = $query->param("filename");   
+if (!$filename ) {
+ print $query->header(); 
+ printf 'Error: No file name<br><A href="/cgi-bin/ppzilogmenu.pl">View Logs</A>';
+ exit $!;
+}
+$template->param(FILENAME => $filename);
+
 my $username = $query->param("username");   
 if (!$username ) {
- $username = 'paul@laas.fr';
+ #$username = 'paul@laas.fr';
+ print $query->header(); 
+ printf 'Error: No user name<br><A href="/cgi-bin/ppzilogmenu.pl">View Logs</A>';
+ exit $!;
 }
+$template->param(USERNAME => $username);
 
 my @filepts = split(/\_/,$filename);
 my $date = $filepts[2] . $filepts[1] . $filepts[0];
@@ -37,7 +49,20 @@ open DATAFILE, "<$upload_dir/$username/$filename.data" or die $!;
 
 my @expand = $query->param("expand");
 
-
+if (-r "$upload_dir/$username/$filename.protocol") {
+	#print "protocol file exists"; 
+} else {
+	open LOGFILE, "<$upload_dir/$username/$filename.log" or die $!;
+	open PROFILE, ">$upload_dir/$username/$filename.protocol" or die $!;
+	my $startcopy = 0;
+	while (<LOGFILE>) {
+		$startcopy = 1 if ($_ =~ m/protocol/);
+		print PROFILE $_ if ($startcopy);
+		last if ($_ =~ m/\/protocol/);
+	}
+	close LOGFILE;
+	close PROFILE;
+}
 my $xmlfile = "$upload_dir/$username/$filename.protocol";
 #my $xmlfile = '/home/paul/paparazzi/conf/airframes/Paul/minimag2.xml';
 #printf "xml file: $xmlfile\n";

@@ -3,17 +3,21 @@
 <body>
 <form action="/cgi-bin/loglist.pl" method="GET">
 <img src="../archive_banner.png">
+<input type="hidden" name="username" value="<TMPL_VAR NAME=USERNAME>">
+<input type="hidden" name="filename" value="<TMPL_VAR NAME=FILENAME>">
 <table border="1" cellpadding="5" cellspacing="5" width="80%" style="background-color:lemonchiffon;border:3px black;">
 	<tr>
-	<th style="background-color:bisque;text-align:left">View Logs</th>
+	<th style="background-color:bisque;text-align:left"><A href="/cgi-bin/ppzilogmenu.pl">View Logs</A></th>
 	<th style="text-align:left"><A href=/upload_logfile.html>Upload logs</A></th>
 	<th style="text-align:left"><A href=/cgi-bin/settings.cgi>Settings</A></th>
 	<th style="text-align:left"><A href=/cgi-bin/stats.cgi>Site Stats</A></th>
 	</tr>
 	<tr><td style="background-color:bisque" width="20%" colspan="4">
 	<table border=1 bgcolor="black">
+	<TMPL_IF NAME=MSGS><tr><td bgcolor="lightyellow">Message name</td><td bgcolor="lightyellow">Count</td></tr></TMPL_IF>
 		<TMPL_LOOP NAME=MSGS>
-			<tr><td bgcolor="white" ><TMPL_VAR NAME=MSGNAME></td><td bgcolor="white"><TMPL_VAR NAME=MSGCNT></td></tr>
+			<tr><td bgcolor="white"><input type="checkbox" name="expand" value="<TMPL_VAR NAME=MSGNAME>"><TMPL_VAR NAME=MSGNAME></td>
+			<td bgcolor="white"><TMPL_VAR NAME=MSGCNT></td></tr>
 			<TMPL_IF NAME=FIELDDATA>
 			<tr><td bgcolor="white" colspan="2">
 			<table border=1 bgcolor="lback">
@@ -23,6 +27,7 @@
 					<td><TMPL_VAR NAME=NAME></td>
 					<td><TMPL_VAR NAME=TYPE></td>
 					<td><TMPL_VAR NAME=UNIT></td>
+					<td><A href="cgi-bin/notsupportedyet.pl">Plot</A></td>
 					</tr>
 				</TMPL_LOOP>
 			</table>
@@ -34,6 +39,7 @@
 	</table>
 	</td></tr>
 </table>
+<input type="submit" name="func" value="expand" />
 </form>
 </body>
 </html>
