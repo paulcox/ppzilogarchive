@@ -20,17 +20,23 @@
 # http://api.kinomap.com/upload/getInfo?app_key=123456789abcdefghij&login=demo&md5_pwd=defekfzlekfzefdadadzdadzadzd&
 #							gps_format=nmea&upload_type=http&video_format=mp4&timestamp=1297696525&nonce=abcdefghij&
 #							signature=jden54fe8dfde85d1&output_format=xml
-#mine:
+# mine:
 # http://api.kinomap.com/upload/getInfo?app_key=L1CEXi2GqqPlxIVD08BQ&login=paulcox&md5_pwd=2a2d595e6ed9a0b24f027f2b63b134d6&
-#							gps_format=nmea&upload_type=http&video_format=mp4&timestamp=1298624912&nonce=xJgFKzvPuw&
-#							signature=aabe06c6ef7ac2a4d0c156ed9dcd0f215164e24e&output_format=xml
+#							gps_format=nmea&upload_type=http&video_format=mp4&timestamp=1298809750&nonce=MNXxpAg3cW&
+#							signature=996f3da7778606de83af3807ba917a60cbac92cf&output_format=xml
+# response :
+#<?xml version="1.0"?>
+#<uploadInfo>
+#	<token>mjdpd73yq2t36bf4uzvw</token>
+#	<url>http://ul2.kinomap.com/api/httpUpload.php</url>
+#</uploadInfo>
 
 
 use strict;
 use warnings;
 use HTTP::Request;
 use Digest::MD5 qw(md5 md5_hex md5_base64);
-use Digest::SHA1  qw(sha1 sha1_hex sha1_base64);
+use Digest::HMAC_SHA1 qw(hmac_sha1_hex);
 use LWP::UserAgent;
 
 
@@ -44,13 +50,13 @@ my $ffmpeg_p2 = "/usr/bin/ffmpeg -s 320x240 -y -i $video_infile -pass 2 -threads
 my $app_key = 'L1CEXi2GqqPlxIVD08BQ';
 my $app_secret = `cat app_secret.txt`;
 chomp $app_secret;
-#print $app_secret."\n";
+print $app_secret."\n";
 my $login = 'paulcox';
-my $md5pass = md5_hex("xxxxx");
+my $md5pass = md5_hex("xxxxxx");
 my $timestamp = time();
 my @randchars = map {('a'..'z','A'..'Z',0..9)[rand 62]} 1..10 ;
 my $nonce = join("",@randchars);
-my $sig = sha1_hex($app_key.$timestamp.$nonce.$app_secret);
+my $sig = hmac_sha1_hex($app_key.$timestamp.$nonce, $app_secret);
 
 my $url = "http://api.kinomap.com/upload/getInfo?app_key=$app_key&login=$login&md5_pwd=$md5pass&";
 $url .= "gps_format=nmea&upload_type=http&video_format=mp4&timestamp=$timestamp&nonce=$nonce&";
