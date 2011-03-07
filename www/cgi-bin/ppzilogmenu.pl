@@ -64,8 +64,10 @@ if ( $action eq 'view') {
      my %sumdata;
      my ($fieldname,$fieldval) = split(/\:/,$_);
 	 if ($fieldname eq 'warning') { next; }
-	 if ($fieldname eq 'TO lat') {$lat=$fieldval;}
-	 if ($fieldname eq 'TO lon') {$lon=$fieldval;}
+	 if ($fieldname eq 'AC_NAME') { $rowdata{ACNAME} = $fieldval;next;}
+	 if ($fieldname eq 'AC_ID') { $rowdata{ACID} = $fieldval;next;}
+	 if ($fieldname eq 'TO lat') {$lat=$fieldval;next;}
+	 if ($fieldname eq 'TO lon') {$lon=$fieldval;next;}
 	 $sumdata{SUMFIELD} = $fieldname ;
 	 $sumdata{DATAFIELD} = $fieldval ;
 	 push(@inloopdata, \%sumdata);

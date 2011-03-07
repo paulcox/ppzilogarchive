@@ -89,14 +89,38 @@ open DATAFILE, "<$upload_dir/$username/$filename.data" or die $!;
 #open OUTFILE, ">GPS_data_$date.txt" or die $!;
 open NMEAFILE, ">$upload_dir/$username/NMEA_$date.log" or die $!;
 
-my $sacc =0;
-my $pacc =0;
-my $pdop =0;
-my $numSV =0;
+my $sacc = 0;
+my $pacc = 0;
+my $pdop = 0;
+my $numSV = 0;
+my $acid = 0;
 
 while (my $line = <DATAFILE>) {
   chomp($line); 
   my @fields = split(/ /,$line);
+  
+  if ($acid == 0) {
+		open LOGFILE, "<$upload_dir/$username/$filename.log" or die $!;
+		$acid = $fields[1];
+		printf SUMOUT "AC_ID: $acid\n";
+		while (my $lin = <LOGFILE>) {
+			if ($lin =~ m/ac_id="$acid"/)  {
+			#radio="radios/T6EXAP.xml" telemetry="telemetry/default.xml" 
+			#flight_plan="flight_plans/daurat2.xml" settings=" settings/tuning_basic_ins.xml"
+				$lin =~ /aircraft\sname="(\S+)"/;
+				if ($1) {
+					my $acname = $1;
+					printf SUMOUT "AC_NAME: $acname\n";
+				}
+				$lin =~ /radio="radios\/(\S+).xml".*telemetry="telemetry\/(\S+).xml".*flight_plan="flight_plans\/(\S+).xml"/;
+				if ($1) {
+					printf SUMOUT "radio: $1\n telemetry: $2\n flight plan: $3\n";
+				}
+				last;
+			}
+		}
+		close LOGFILE;
+  } 
   
   #Determine when GPS fix is acquired by looking for PDOP <1000 and numSV>3
   if ($fields[2] eq "GPS_SOL" and $fields[5] < 1000 and $fields[6] > 3) {
@@ -149,9 +173,9 @@ while (my $line = <DATAFILE>) {
     #touchdown is considered when < 1 m/s on hor and vert
     if ($fields[8] < 100 and $fields[9] < 100 and $totime != 0 and $tdtime == 0) {
       $tdtime = $fields[0];
-      printf SUMOUT "Max Alt : %.2f meters ($hialtt sec)\n",($hialt-$gndalt)/100;
-      printf SUMOUT "Max Dist: %.3f km ($maxdistt sec)\n",$maxdist;
-      printf SUMOUT "Touchdown detected at time : $tdtime s \n flight time: %.2f min\n",($tdtime-$totime)/60;
+      printf SUMOUT "Max Altitude (above home): %.2f meters ($hialtt sec)\n",($hialt-$gndalt)/100;
+      printf SUMOUT "Max Dist (from home): %.3f km ($maxdistt sec)\n",$maxdist;
+      printf SUMOUT "Touchdown detected at: $tdtime s \n total flight time: %.2f min\n",($tdtime-$totime)/60;
     }
    
     $utw=$fields[11];
@@ -211,9 +235,9 @@ if ($cnt == 0) {
 printf "nothing counted";
 die;
 }
-printf SUMOUT "Number of GPS points: $cnt Avg. delta ";
-printf SUMOUT '%.2f',$sum/$cnt;
-printf SUMOUT "\nDuration: ";
+printf SUMOUT "Number of GPS points: $cnt (Avg. delta ";
+printf SUMOUT "%.2f)",$sum/$cnt;
+printf SUMOUT "\nLog Length: ";
 printf SUMOUT '%.2f',$cnt/4/60;
 printf SUMOUT " minutes\n";
 
