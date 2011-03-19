@@ -1,0 +1,31 @@
+<html> 
+ <head> 
+   <title>File Upload</title> 
+ </head> 
+ <body> 
+ <img src="../archive_banner.png">
+   <form action="/cgi-bin/ac_pic.cgi" method="post"   
+enctype="multipart/form-data"> 
+
+<table border="1" cellpadding="5" cellspacing="5" width="80%"
+style="background-color:lemonchiffon;border:3px black;">
+<tr>
+<th style="text-align:left"><A href="/cgi-bin/ppzilogmenu.pl">View Logs</A></th>
+<th style="text-align:left"><A href=/upload_logfile.html>Upload logs</A></th>
+<th style="text-align:left"><A href=/cgi-bin/settings.cgi>Settings</A></th>
+<th style="text-align:left"><A href=/cgi-bin/stats.cgi>Site Stats</A></th>
+</tr>
+<tr>
+<td style="background-color:bisque" width="20%" colspan="4">
+
+     <p>Picture to Upload: <input type="file" name="picfile" /></p> 
+     <p>Your Email Address: <input type="text" name="email_address" value="paul@laas.fr"/></p>
+	 <p>Aircraft Name: <input type="text" name="acname"/></p>  
+     <p><input type="submit" name="Submit" value="Submit Form" /></p> 
+
+</td>
+</tr>
+</table>
+   </form> 
+ </body> 
+</html>
