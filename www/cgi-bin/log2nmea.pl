@@ -23,7 +23,10 @@
 use CGI;  
 use CGI::Carp qw ( fatalsToBrowser );  
 use Geo::Coordinates::UTM;
+use USNaviguide_Google_Encode;
 require "distance.pl";
+
+use constant GOOGURL => "http://maps.google.com/maps/api/staticmap";
 
 my $query = new CGI;  
 
@@ -70,7 +73,7 @@ my $username = $query->param("user");
 
 print $query->header();  
 
-print "Parsing log and creating summary...Please wait...\n";
+#print "Parsing log and creating summary...Please wait...\n";
 
 open(SUMOUT,">$upload_dir/$username/$filename.sum");
 
@@ -94,6 +97,7 @@ my $pacc = 0;
 my $pdop = 0;
 my $numSV = 0;
 my $acid = 0;
+my @Ipoints	= ( ) ;
 
 while (my $line = <DATAFILE>) {
   chomp($line); 
@@ -181,6 +185,7 @@ while (my $line = <DATAFILE>) {
     $utw=$fields[11];
     #divide by 100 as gps provides utm in centimeters
     ($latitude,$longitude)=utm_to_latlon('wgs84',($fields[12] . "V"),$fields[4]/100,$fields[5]/100);
+    push( @Ipoints, [$latitude,$longitude] );
     #printf SUMOUT OUTFILE "Time: %.2f Alt: %.2f Lat: %.6f Lon: %.6f\n",
     #                 $fields[0] - $toffset,($fields[7]/100),$latitude,$longitude;
     
@@ -235,11 +240,19 @@ if ($cnt == 0) {
 printf "nothing counted";
 die;
 }
+
+my $tolerance = 5;
+my ($lstr,$pstr) = Google_Encode(\@Ipoints,$tolerance);
+my $stuff = 'size=256x256&maptype=satellite&sensor=false';
+my $gpath= "path=weight:3|color:orange|enc:$pstr";
+my $url = GOOGURL."?$stuff&$gpath";
+
 printf SUMOUT "Number of GPS points: $cnt (Avg. delta ";
 printf SUMOUT "%.2f)",$sum/$cnt;
 printf SUMOUT "\nLog Length: ";
 printf SUMOUT '%.2f',$cnt/4/60;
 printf SUMOUT " minutes\n";
+printf SUMOUT "pstr: ".$pstr."\n";
 
 close DATAFILE;
 #close OUTFILE;
@@ -290,6 +303,8 @@ print <<END_HTML;
    <textarea name="comments" cols="50" rows="15">$summary_contents</textarea>
    <img src="http://maps.google.com/maps/api/staticmap?center=$lat,$lon&zoom=9&size=256x256&maptype=roadmap
 &markers=color:blue|label:HOME|$olat,$olon&sensor=false">
+   <br>
+   <img src="$url">
    <br>
    Enter something into your log book regarding this flight :
    <form method="post" action="comments" name="update">
