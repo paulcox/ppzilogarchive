@@ -243,16 +243,15 @@ die;
 
 my $tolerance = 5;
 my ($lstr,$pstr) = Google_Encode(\@Ipoints,$tolerance);
-my $stuff = 'size=256x256&maptype=satellite&sensor=false';
-my $gpath= "path=weight:3|color:orange|enc:$pstr";
-my $url = GOOGURL."?$stuff&$gpath";
+#hack because I'm finding double backslashes
+$pstr =~ s/\\\\/\\/g;
 
 printf SUMOUT "Number of GPS points: $cnt (Avg. delta ";
 printf SUMOUT "%.2f)",$sum/$cnt;
 printf SUMOUT "\nLog Length: ";
 printf SUMOUT '%.2f',$cnt/4/60;
 printf SUMOUT " minutes\n";
-printf SUMOUT "pstr: ".$pstr."\n";
+printf SUMOUT "pstr:%s\n",$pstr;
 
 close DATAFILE;
 #close OUTFILE;
@@ -304,7 +303,7 @@ print <<END_HTML;
    <img src="http://maps.google.com/maps/api/staticmap?center=$lat,$lon&zoom=9&size=256x256&maptype=roadmap
 &markers=color:blue|label:HOME|$olat,$olon&sensor=false">
    <br>
-   <img src="$url">
+   <img src="http://maps.google.com/maps/api/staticmap?size=256x256&maptype=satellite&sensor=false&path=weight:3|color:orange|enc:$pstr">
    <br>
    Enter something into your log book regarding this flight :
    <form method="post" action="comments" name="update">

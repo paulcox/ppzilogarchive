@@ -34,6 +34,7 @@ if ( $action eq 'view') {
  my @loopdata = ();
  my $lat;
  my $lon;
+ my $pstr;
 
  #for each log found, in reverse order (newest first), show links, summary, map, and log entry  
  foreach(sort {$b cmp $a} @logs) {
@@ -68,6 +69,7 @@ if ( $action eq 'view') {
 	 if ($fieldname eq 'AC_ID') { $rowdata{ACID} = $fieldval;next;}
 	 if ($fieldname eq 'TO lat') {$lat=$fieldval;next;}
 	 if ($fieldname eq 'TO lon') {$lon=$fieldval;next;}
+	 if ($fieldname eq 'pstr') {$pstr=$fieldval;next;}
 	 $sumdata{SUMFIELD} = $fieldname ;
 	 $sumdata{DATAFIELD} = $fieldval ;
 	 push(@inloopdata, \%sumdata);
@@ -77,6 +79,7 @@ if ( $action eq 'view') {
    $lognum++;
    $rowdata{MAP} = "http://maps.google.com/maps/api/staticmap?center=$lat,$lon&zoom=9&size=256x256&maptype=roadmap
 &markers=color:blue|label:HOME|$lat,$lon&sensor=false";
+   $rowdata{MAP2} = "http://maps.google.com/maps/api/staticmap?size=256x256&maptype=satellite&sensor=false&path=weight:3|color:orange|enc:$pstr";
    } else {
 #	$rowdata{SUMDATA} = "none";
 	$rowdata{GENSUM} = "log2nmea.pl?user=$username&logfile=$relname";
